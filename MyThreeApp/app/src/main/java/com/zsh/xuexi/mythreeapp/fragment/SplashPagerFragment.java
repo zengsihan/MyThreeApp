@@ -13,6 +13,7 @@ import android.widget.ImageView;
 
 import com.zsh.xuexi.mythreeapp.R;
 import com.zsh.xuexi.mythreeapp.adapter.SplashPagerAdapter;
+import com.zsh.xuexi.mythreeapp.pager.Pager2;
 
 import me.relex.circleindicator.CircleIndicator;
 
@@ -115,7 +116,11 @@ public class SplashPagerFragment extends Fragment {
 
         @Override
         public void onPageSelected(int position) {
-
+            //当显示最后一个pager时，播放他自己的动画
+            if(position==2){
+                Pager2 pager2= (Pager2) adapter.getView(position);
+                pager2.showAnimation();
+            }
         }
 
         @Override
