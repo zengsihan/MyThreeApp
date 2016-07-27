@@ -117,9 +117,16 @@ public class SplashPagerFragment extends Fragment {
         @Override
         public void onPageSelected(int position) {
             //当显示最后一个pager时，播放他自己的动画
+            //改成每次第三页都有动画
+            Pager2 pager2= (Pager2) adapter.getView(2);
             if(position==2){
-                Pager2 pager2= (Pager2) adapter.getView(position);
+//                Pager2 pager2= (Pager2) adapter.getView(position);
                 pager2.showAnimation();
+            }else{
+                if(pager2.getIvBubble1().getVisibility()==View.VISIBLE)
+                    pager2.getIvBubble1().setVisibility(View.GONE);
+                    pager2.getIvBubble2().setVisibility(View.GONE);
+                    pager2.getIvBubble3().setVisibility(View.GONE);
             }
         }
 
