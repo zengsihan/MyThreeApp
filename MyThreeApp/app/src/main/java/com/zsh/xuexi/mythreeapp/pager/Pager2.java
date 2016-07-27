@@ -70,7 +70,7 @@ public class Pager2 extends FrameLayout {
     //用来显示当前页面内三张图像的进入动画，只显示一次
     public void showAnimation(){
         if(ivBubble1.getVisibility() != View.VISIBLE){
-            postDelayed(new Runnable() {
+            postDelayed(new Runnable() {//延迟显示
                 @Override public void run() {
                     ivBubble1.setVisibility(View.VISIBLE);
                     YoYo.with(Techniques.FadeInLeft).duration(300).playOn(ivBubble1);
