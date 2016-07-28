@@ -30,7 +30,7 @@ import in.srain.cube.views.ptr.header.StoreHouseHeader;
  */
 public class RepoListFragment extends Fragment {
     @Bind(R.id.lvRepos) ListView listView;
-    @Bind(R.id.ptrClassicFrameLayout) PtrClassicFrameLayout ptrFrameLayout;
+    @Bind(R.id.ptrClassicFrameLayout) PtrClassicFrameLayout ptrFrameLayout;//下拉刷新的第三方控件
     @Bind(R.id.emptyView) TextView emptyView;
     @Bind(R.id.errorView) TextView errorView;
 
@@ -51,8 +51,8 @@ public class RepoListFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         presenter=new RepoListPresenter(this);
-//        String[] datas = {"1", "2", "3", "4", "5", "6"};
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
+        String[] datas = {"1", "2", "3", "4", "5", "6"};
+        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, datas);
         listView.setAdapter(adapter);
         initPullToRefresh();
     }
@@ -114,7 +114,7 @@ public class RepoListFragment extends Fragment {
 
     }
 
-    //
+    //停止刷新
     public void stopRefresh() {
         ptrFrameLayout.refreshComplete();
     }
