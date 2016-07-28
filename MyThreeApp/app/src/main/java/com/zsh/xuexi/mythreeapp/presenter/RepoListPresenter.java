@@ -1,9 +1,10 @@
 package com.zsh.xuexi.mythreeapp.presenter;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.zsh.xuexi.mythreeapp.commons.RepoListPtrView;
 import com.zsh.xuexi.mythreeapp.commons.RepoListView;
-import com.zsh.xuexi.mythreeapp.fragment.RepoListFragment;
 
 import java.util.ArrayList;
 
@@ -17,12 +18,44 @@ public class RepoListPresenter {
         this.repoListView = repoListView;
     }
 
-    //刷新方法
+    //下拉刷新处理
     public void refresh(){
         new RefreshTask().execute();
     }
 
-    //异步处理
+    /*加载更多处理*/
+    public void loadMore(){
+        repoListView.showLoadMoreLoading();
+        new LoadMoreTask().execute();
+    }
+
+    //上拉加载更多异步处理
+    class LoadMoreTask extends AsyncTask<Void,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            ArrayList<String> datas=new ArrayList<String>();
+            for(int i=0;i<10;i++){
+                datas.add("上拉数据"+i);
+            }
+            repoListView.addMoreData(datas);
+            repoListView.hideLoadMore();
+        }
+    }
+
+
+    //下拉刷新异步处理
     class RefreshTask extends AsyncTask<Void,Void,Void>{
 
         @Override//执行

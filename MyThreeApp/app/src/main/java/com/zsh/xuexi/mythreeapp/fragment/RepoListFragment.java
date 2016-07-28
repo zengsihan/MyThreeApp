@@ -3,6 +3,7 @@ package com.zsh.xuexi.mythreeapp.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,9 +11,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.mugen.Mugen;
+import com.mugen.MugenCallbacks;
 import com.zsh.xuexi.mythreeapp.R;
+import com.zsh.xuexi.mythreeapp.commons.RepoListLoadMoreView;
+import com.zsh.xuexi.mythreeapp.commons.RepoListPtrView;
 import com.zsh.xuexi.mythreeapp.commons.RepoListView;
 import com.zsh.xuexi.mythreeapp.presenter.RepoListPresenter;
+import com.zsh.xuexi.mythreeapp.view.FooterView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +46,8 @@ public class RepoListFragment extends Fragment implements RepoListView {
     //用来做当前页面业务逻辑及视图更新
     private RepoListPresenter presenter;
 
+    private FooterView footerView;//上拉加载更多的视图
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -56,7 +64,37 @@ public class RepoListFragment extends Fragment implements RepoListView {
         adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
         adapter.addAll(datas);//给适配器添加数据
         listView.setAdapter(adapter);
+
         initPullToRefresh();//调用下拉刷新的初始方法
+
+        initLoadMoreScroll();//初始化上拉加载更多
+    }
+
+    private void initLoadMoreScroll() {
+        footerView=new FooterView(getContext());
+        //第三方控件，监听listview滑动最后，加载数据
+        Mugen.with(listView, new MugenCallbacks() {
+            @Override//listview滚动到底部，讲触发此方法
+            public void onLoadMore() {
+                //执行上拉加载数据的业务处理
+                Log.i("ms","进入了上拉刷新");
+                presenter.loadMore();
+            }
+
+            // 是否正在加载中
+            // 其内部将用此方法来判断是否触发onLoadMore
+            @Override
+            public boolean isLoading() {
+                return listView.getFooterViewsCount()>0&&footerView.isLoading();
+            }
+
+            // 是否已加载完成所有数据
+            // 其内部将用此方法来判断是否触发onLoadMore
+            @Override
+            public boolean hasLoadedAllItems() {
+                return listView.getFooterViewsCount()>0&&footerView.isComplete();
+            }
+        }).start();
     }
 
     @Override
@@ -82,6 +120,7 @@ public class RepoListFragment extends Fragment implements RepoListView {
         });
         // 以下代码（只是修改了header样式）
         StoreHouseHeader header = new StoreHouseHeader(getContext());
+//        getActivity().
         header.initWithString("I LIKE " + " JAVA");
         header.setPadding(0, 60, 0, 60);
         // 修改Ptr的HeaderView效果
@@ -135,4 +174,33 @@ public class RepoListFragment extends Fragment implements RepoListView {
         adapter.addAll(data);//添加数据
         adapter.notifyDataSetChanged();//刷新适配器
     }
+
+    //上拉加载更多视图实现-----------------------------------------------
+    @Override//显示listview的foot加载更多
+    public void showLoadMoreLoading() {
+        if(listView.getFooterViewsCount()==0){
+            listView.addFooterView(footerView);//给listview添加foot
+        }
+        footerView.showLoading();//显示进度条
+    }
+
+    @Override//隐藏
+    public void hideLoadMore() {
+        listView.removeFooterView(footerView);//移除listview的foot
+    }
+
+    @Override//显示错误信息
+    public void showLoadMoreError(String erroeMsg) {
+        if (listView.getFooterViewsCount()==0){
+            listView.addFooterView(footerView);
+        }
+        footerView.showError(erroeMsg);
+    }
+
+    @Override //刷新上拉加载的数据
+    public void addMoreData(List<String> datas) {
+        adapter.addAll(datas);
+        adapter.notifyDataSetChanged();
+    }
+
 }
