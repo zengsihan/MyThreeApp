@@ -11,6 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.zsh.xuexi.mythreeapp.R;
+import com.zsh.xuexi.mythreeapp.commons.RepoListView;
 import com.zsh.xuexi.mythreeapp.presenter.RepoListPresenter;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import in.srain.cube.views.ptr.header.StoreHouseHeader;
  * 仓库列表
  * 将显示当前语言的所有仓库，有下拉刷新，上拉加载更多的效果
  */
-public class RepoListFragment extends Fragment {
+public class RepoListFragment extends Fragment implements RepoListView {
     @Bind(R.id.lvRepos) ListView listView;
     @Bind(R.id.ptrClassicFrameLayout) PtrClassicFrameLayout ptrFrameLayout;//下拉刷新的第三方控件
     @Bind(R.id.emptyView) TextView emptyView;
@@ -52,9 +53,10 @@ public class RepoListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         presenter=new RepoListPresenter(this);
         String[] datas = {"1", "2", "3", "4", "5", "6"};
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, datas);
+        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
+        adapter.addAll(datas);//给适配器添加数据
         listView.setAdapter(adapter);
-        initPullToRefresh();
+        initPullToRefresh();//调用下拉刷新的初始方法
     }
 
     @Override
@@ -63,6 +65,7 @@ public class RepoListFragment extends Fragment {
         ButterKnife.unbind(this);
     }
 
+    //初始化下拉刷新，这是第三方的使用
     private void initPullToRefresh() {
         // 使用当前对象做为key，来记录上一次的刷新时间,如果两次下拉太近，将不会触发新刷新
         ptrFrameLayout.setLastUpdateTimeRelateObject(this);
@@ -74,7 +77,7 @@ public class RepoListFragment extends Fragment {
             @Override public void onRefreshBegin(PtrFrameLayout frame) {
                 // 去做数据的加载，做具体的业务
                 // 也就是说，你要抛开视图，到后台线程去做你的业务处理(数据刷新加载)
-                presenter.refresh();
+                presenter.refresh();//调用刷新方法，异步处理。
             }
         });
         // 以下代码（只是修改了header样式）
@@ -90,18 +93,21 @@ public class RepoListFragment extends Fragment {
     // 刷新的方法
     // 视图上:
     // 显示内容 or 错误 or 空白 , 三选一
+    @Override
     public void showContentView() {
         ptrFrameLayout.setVisibility(View.VISIBLE);
         emptyView.setVisibility(View.GONE);
         errorView.setVisibility(View.GONE);
     }
 
+    @Override
     public void showErrorView(String errorMsg) {
         ptrFrameLayout.setVisibility(View.GONE);
         emptyView.setVisibility(View.GONE);
         errorView.setVisibility(View.VISIBLE);
     }
 
+    @Override
     public void showEmptyView() {
         ptrFrameLayout.setVisibility(View.GONE);
         emptyView.setVisibility(View.VISIBLE);
@@ -110,20 +116,23 @@ public class RepoListFragment extends Fragment {
 
     // 显示提示信息
     // 如：Toast， 直接在当前页面上页面
+    @Override
     public void showMessage(String msg) {
 
     }
 
-    //停止刷新
+    //停止刷新，
+    @Override
     public void stopRefresh() {
-        ptrFrameLayout.refreshComplete();
+        ptrFrameLayout.refreshComplete();//隐藏刷新的动画
     }
 
     // 刷新数据
     // 将后台线程更新加载到的数据，刷新显示到视图(listview)上来显示给用户看
+    @Override
     public void refreshData(List<String> data) {
-        adapter.clear();
-        adapter.addAll(data);
-        adapter.notifyDataSetChanged();
+        adapter.clear();//清理适配器
+        adapter.addAll(data);//添加数据
+        adapter.notifyDataSetChanged();//刷新适配器
     }
 }
