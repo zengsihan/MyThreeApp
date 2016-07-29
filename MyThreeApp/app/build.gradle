@@ -39,4 +39,7 @@ dependencies {
     compile 'com.daimajia.androidanimations:library:1.1.3@aar'
     // 做了listview的上拉监听
     compile 'com.vinaysshenoy:mugen:1.0.3'
+    //网络拿数据
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
 }

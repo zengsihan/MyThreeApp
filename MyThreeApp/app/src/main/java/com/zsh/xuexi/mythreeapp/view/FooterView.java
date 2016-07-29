@@ -91,4 +91,5 @@ public class FooterView extends FrameLayout {
     public void sertErrorClickListener(OnClickListener onClickListener){
         tvError.setOnClickListener(onClickListener);
     }
+
 }

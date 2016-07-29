@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.mugen.Mugen;
 import com.mugen.MugenCallbacks;
 import com.zsh.xuexi.mythreeapp.R;
+import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.commons.RepoListLoadMoreView;
 import com.zsh.xuexi.mythreeapp.commons.RepoListPtrView;
 import com.zsh.xuexi.mythreeapp.commons.RepoListView;
@@ -42,11 +43,9 @@ public class RepoListFragment extends Fragment implements RepoListView {
     @Bind(R.id.errorView) TextView errorView;
 
     private ArrayAdapter<String> adapter;
-
-    //用来做当前页面业务逻辑及视图更新
-    private RepoListPresenter presenter;
-
+    private RepoListPresenter presenter;//用来做当前页面业务逻辑及视图更新
     private FooterView footerView;//上拉加载更多的视图
+    private ActivityUtils activityUtils;//工具类
 
     @Nullable
     @Override
@@ -59,6 +58,7 @@ public class RepoListFragment extends Fragment implements RepoListView {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        activityUtils=new ActivityUtils(this);
         presenter=new RepoListPresenter(this);
         String[] datas = {"1", "2", "3", "4", "5", "6"};
         adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
@@ -157,7 +157,7 @@ public class RepoListFragment extends Fragment implements RepoListView {
     // 如：Toast， 直接在当前页面上页面
     @Override
     public void showMessage(String msg) {
-
+        activityUtils.showToast(msg);
     }
 
     //停止刷新，
