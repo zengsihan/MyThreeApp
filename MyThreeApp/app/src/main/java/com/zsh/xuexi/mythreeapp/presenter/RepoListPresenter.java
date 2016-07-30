@@ -30,13 +30,11 @@ public class RepoListPresenter {
 //        new RefreshTask().execute();
 
         //通过retrofit拿数据
-        GitHubClient gitHubClient=new GitHubClient();
-        GitHubApi gitHubApi=gitHubClient.getGitHubApi();
-        Call<ResponseBody> call=gitHubApi.gitHub();
-        //两种方式：直接在当前线程执行，异步执行
-        call.enqueue(refreshCallback);
-
-
+//        GitHubClient gitHubClient=new GitHubClient();
+//        GitHubApi gitHubApi=gitHubClient.getGitHubApi();
+//        Call<ResponseBody> call=gitHubApi.gitHub();
+//        //两种方式：直接在当前线程执行，异步执行
+//        call.enqueue(refreshCallback);
     }
     private final Callback<ResponseBody> refreshCallback=new Callback<ResponseBody>() {
         @Override//响应

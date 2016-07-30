@@ -41,6 +41,8 @@ public class SplashActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnLogin:
+                activityUtils.startActivity(LoginActivity.class);
+                finish();
                 break;
             case R.id.btnEnter:
                 activityUtils.startActivity(MainActivity.class);

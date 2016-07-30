@@ -10,8 +10,12 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 
 import com.zsh.xuexi.mythreeapp.R;
+import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.fragment.HotRepoFragment;
 
 import butterknife.Bind;
@@ -27,9 +31,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private HotRepoFragment hotRepoFragment;//热门仓库fragment
 
+    private Button btnLogin;
+    private ImageView ivIcon;
+
+    private ActivityUtils activityUtils;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activityUtils=new ActivityUtils(this);
         // 设置当前视图(也就是说，更改了当前视图内容,将导至onContentChanged方法触发)
         setContentView(R.layout.activity_main);
     }
@@ -47,6 +57,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();//根据drawerlayout同步器当前状态
         //设置抽屉监听
         drawerLayout.addDrawerListener(toggle);
+
+        btnLogin=ButterKnife.findById(navigationView.getHeaderView(0),R.id.btnLogin);
+        ivIcon=ButterKnife.findById(navigationView.getHeaderView(0),R.id.ivIcon);
+        btnLogin.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                activityUtils.startActivity(LoginActivity.class);
+                finish();
+            }
+        });
 
         //默认显示热门仓库的fragment
         hotRepoFragment=new HotRepoFragment();
