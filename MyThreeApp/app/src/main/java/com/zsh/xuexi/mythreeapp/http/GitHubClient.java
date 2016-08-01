@@ -1,6 +1,7 @@
 package com.zsh.xuexi.mythreeapp.http;
 
 import com.zsh.xuexi.mythreeapp.entity.AccessTokenResult;
+import com.zsh.xuexi.mythreeapp.entity.RepoResult;
 import com.zsh.xuexi.mythreeapp.entity.User;
 
 import okhttp3.OkHttpClient;
@@ -9,6 +10,7 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Field;
+import retrofit2.http.Query;
 
 /**
  * 用Retrofit的话，能基本表现出很多的HTTP基本知识
@@ -50,5 +52,10 @@ public class GitHubClient implements GitHubApi {
     @Override
     public Call<User> getUserInfo() {
         return gitHubApi.getUserInfo();
+    }
+
+    @Override
+    public Call<RepoResult> searchRepos(@Query("q") String query, @Query("page") int pageId) {
+        return gitHubApi.searchRepos(query,pageId);
     }
 }

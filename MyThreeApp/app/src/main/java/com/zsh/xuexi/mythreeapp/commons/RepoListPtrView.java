@@ -2,6 +2,8 @@ package com.zsh.xuexi.mythreeapp.commons;
 
 import android.view.View;
 
+import com.zsh.xuexi.mythreeapp.entity.Repo;
+
 import java.util.List;
 
 /**
@@ -27,5 +29,5 @@ public interface RepoListPtrView {
 
     // 刷新数据
     // 将后台线程更新加载到的数据，刷新显示到视图(listview)上来显示给用户看
-     void refreshData(List<String> data);
+     void refreshData(List<Repo> data);
 }

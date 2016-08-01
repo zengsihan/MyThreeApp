@@ -4,13 +4,13 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.zsh.xuexi.mythreeapp.commons.RepoListView;
-import com.zsh.xuexi.mythreeapp.http.GitHubApi;
+import com.zsh.xuexi.mythreeapp.entity.Repo;
+import com.zsh.xuexi.mythreeapp.entity.RepoResult;
 import com.zsh.xuexi.mythreeapp.http.GitHubClient;
+import com.zsh.xuexi.mythreeapp.http.Language;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -19,121 +19,88 @@ import retrofit2.Response;
  * Created by zsh on 2016/7/27.
  */
 public class RepoListPresenter {
-    private RepoListView repoListView;
+    private RepoListView repoListView;//视图的接口
+    private int nextPage=0;
+    private Language language;
 
-    public RepoListPresenter(RepoListView repoListView) {
+    private Call<RepoResult> repoCall;
+
+    public RepoListPresenter(RepoListView repoListView,Language language) {
         this.repoListView = repoListView;
+        this.language=language;
     }
 
     //下拉刷新处理
     public void refresh(){
-//        new RefreshTask().execute();
-
-        //通过retrofit拿数据
-//        GitHubClient gitHubClient=new GitHubClient();
-//        GitHubApi gitHubApi=gitHubClient.getGitHubApi();
-//        Call<ResponseBody> call=gitHubApi.gitHub();
-//        //两种方式：直接在当前线程执行，异步执行
-//        call.enqueue(refreshCallback);
+        //隐藏loadmore
+        repoListView.hideLoadMore();
+        repoListView.showContentView();
+        nextPage=1;//刷新只刷第一页，最新的数据
+        repoCall= GitHubClient.getInstancec().searchRepos(
+                "language:"+language.getPath(), nextPage);
+        repoCall.enqueue(repoCallback);
     }
-    private final Callback<ResponseBody> refreshCallback=new Callback<ResponseBody>() {
-        @Override//响应
-        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-            repoListView.stopRefresh();//停止刷新动画
-            //成功：200-299
-            if(response.isSuccessful()){
-                try {
-                    ResponseBody body=response.body();
-                    if (body == null) {
-                        repoListView.showMessage("未知错误！");
-                        return;
-                    }
-                    // content:就是从服务器拿到的响应体数据
-                    String content = body.string();
-                    Log.i("ms",content);
-                    repoListView.showContentView();
-                } catch (IOException e) {
-//                    e.printStackTrace();
-                    onFailure(call, e);//失败，调用失败方法
-                }
-            }else {//其他code
-                repoListView.showMessage("code:"+response.code());
+    private final Callback<RepoResult> repoCallback=new Callback<RepoResult>() {
+        @Override
+        public void onResponse(Call<RepoResult> call, Response<RepoResult> response) {
+            //视图停止刷新
+            repoListView.stopRefresh();
+            //得到响应结果
+            RepoResult repoResult=response.body();
+            if(repoResult==null){
+                repoListView.showErrorView("结果为空!");
+                return;
             }
+            //当前所搜的语言，没有仓库
+            if(repoResult.getTotalCount()<=0){
+                repoListView.refreshData(null);
+                repoListView.showEmptyView();
+                return;
+            }
+            //取出当前语言下的所有仓库
+            List<Repo> repoList =repoResult.getRepoList();
+            repoListView.refreshData(repoList);
+            //下拉刷新成功，下一页则更新为2；
+            nextPage=2;
         }
 
-        @Override//失败
-        public void onFailure(Call<ResponseBody> call, Throwable t) {
+        @Override
+        public void onFailure(Call<RepoResult> call, Throwable t) {
+            //视图停止刷新
             repoListView.stopRefresh();
-            repoListView.showMessage(t.getMessage());
-            repoListView.showContentView();
+            repoListView.showMessage("repoCallback onFailure"+t.getMessage());
         }
     };
 
     /*加载更多处理*/
     public void loadMore(){
         repoListView.showLoadMoreLoading();
-        new LoadMoreTask().execute();
+        repoCall=GitHubClient.getInstancec().searchRepos("language:"+language.getPath(),nextPage);
+        repoCall.enqueue(loadMoreCallback);
     }
-
-    //上拉加载更多异步处理
-    class LoadMoreTask extends AsyncTask<Void,Void,Void>{
-
+    private final Callback<RepoResult> loadMoreCallback =new Callback<RepoResult>() {
         @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            ArrayList<String> datas=new ArrayList<String>();
-            for(int i=0;i<10;i++){
-                datas.add("上拉数据"+i);
-            }
-            repoListView.addMoreData(datas);
+        public void onResponse(Call<RepoResult> call, Response<RepoResult> response) {
             repoListView.hideLoadMore();
-        }
-    }
-
-
-    //下拉刷新异步处理
-    class RefreshTask extends AsyncTask<Void,Void,Void>{
-
-        @Override//执行
-        protected Void doInBackground(Void... params) {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            //得到响应的结果
+            RepoResult repoResult=response.body();
+            if(repoResult==null){
+                repoListView.showLoadMoreError("结果为空");
+                return;
             }
-            return null;
+            //取出当前语言下的所有仓库
+            List<Repo> repoList=repoResult.getRepoList();
+            repoListView.addMoreData(repoList);
+            nextPage++;
         }
 
-        @Override//执行完成
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            ArrayList<String> datas=new ArrayList<String>();
-            for(int i=0;i<20;i++){
-                datas.add("ceshi"+i);
-            }
-            repoListView.stopRefresh();//调用隐藏刷新动画的方法
-            repoListView.refreshData(datas);
-            repoListView.showContentView();
+        @Override
+        public void onFailure(Call<RepoResult> call, Throwable t) {
+            //视图停止刷新
+            repoListView.hideLoadMore();
+            repoListView.showMessage("repoCallback onFailure"+t.getMessage());
         }
+    };
 
-        @Override//准备工作
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
 
-        @Override//更新
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
-        }
-    }
 }

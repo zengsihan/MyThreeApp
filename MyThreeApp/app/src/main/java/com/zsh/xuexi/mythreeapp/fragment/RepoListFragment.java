@@ -14,10 +14,13 @@ import android.widget.TextView;
 import com.mugen.Mugen;
 import com.mugen.MugenCallbacks;
 import com.zsh.xuexi.mythreeapp.R;
+import com.zsh.xuexi.mythreeapp.adapter.RepoListAdapter;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.commons.RepoListLoadMoreView;
 import com.zsh.xuexi.mythreeapp.commons.RepoListPtrView;
 import com.zsh.xuexi.mythreeapp.commons.RepoListView;
+import com.zsh.xuexi.mythreeapp.entity.Repo;
+import com.zsh.xuexi.mythreeapp.http.Language;
 import com.zsh.xuexi.mythreeapp.presenter.RepoListPresenter;
 import com.zsh.xuexi.mythreeapp.view.FooterView;
 
@@ -42,11 +45,23 @@ public class RepoListFragment extends Fragment implements RepoListView {
     @Bind(R.id.emptyView) TextView emptyView;
     @Bind(R.id.errorView) TextView errorView;
 
-    private ArrayAdapter<String> adapter;
+    private RepoListAdapter adapter;
     private RepoListPresenter presenter;//用来做当前页面业务逻辑及视图更新
     private FooterView footerView;//上拉加载更多的视图
     private ActivityUtils activityUtils;//工具类
 
+    private static final String KEY_LANGUAGE="key_language";
+    public static RepoListFragment getInstance(Language language){
+        RepoListFragment fragment=new RepoListFragment();
+        Bundle args=new Bundle();
+        args.putSerializable(KEY_LANGUAGE,language);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    private Language getLanguage(){
+        return (Language) getArguments().getSerializable(KEY_LANGUAGE);
+    }
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,10 +74,8 @@ public class RepoListFragment extends Fragment implements RepoListView {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         activityUtils=new ActivityUtils(this);
-        presenter=new RepoListPresenter(this);
-        String[] datas = {"1", "2", "3", "4", "5", "6"};
-        adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, new ArrayList<String>());
-        adapter.addAll(datas);//给适配器添加数据
+        presenter=new RepoListPresenter(this,getLanguage());
+        adapter = new RepoListAdapter();
         listView.setAdapter(adapter);
 
         initPullToRefresh();//调用下拉刷新的初始方法
@@ -129,9 +142,7 @@ public class RepoListFragment extends Fragment implements RepoListView {
         ptrFrameLayout.setBackgroundResource(R.color.colorRefresh);
     }
 
-    // 刷新的方法
-    // 视图上:
-    // 显示内容 or 错误 or 空白 , 三选一
+    // 下拉刷新视图实现----------------------------------------
     @Override
     public void showContentView() {
         ptrFrameLayout.setVisibility(View.VISIBLE);
@@ -153,8 +164,6 @@ public class RepoListFragment extends Fragment implements RepoListView {
         errorView.setVisibility(View.GONE);
     }
 
-    // 显示提示信息
-    // 如：Toast， 直接在当前页面上页面
     @Override
     public void showMessage(String msg) {
         activityUtils.showToast(msg);
@@ -169,10 +178,9 @@ public class RepoListFragment extends Fragment implements RepoListView {
     // 刷新数据
     // 将后台线程更新加载到的数据，刷新显示到视图(listview)上来显示给用户看
     @Override
-    public void refreshData(List<String> data) {
+    public void refreshData(List<Repo> data) {
         adapter.clear();//清理适配器
         adapter.addAll(data);//添加数据
-        adapter.notifyDataSetChanged();//刷新适配器
     }
 
     //上拉加载更多视图实现-----------------------------------------------
@@ -197,10 +205,8 @@ public class RepoListFragment extends Fragment implements RepoListView {
         footerView.showError(erroeMsg);
     }
 
-    @Override //刷新上拉加载的数据
-    public void addMoreData(List<String> datas) {
+    @Override//刷新上拉加载的数据
+    public void addMoreData(List<Repo> datas) {
         adapter.addAll(datas);
-        adapter.notifyDataSetChanged();
     }
-
 }

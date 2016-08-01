@@ -1,5 +1,7 @@
 package com.zsh.xuexi.mythreeapp.commons;
 
+import com.zsh.xuexi.mythreeapp.entity.Repo;
+
 import java.util.List;
 
 /**
@@ -14,5 +16,5 @@ public interface RepoListLoadMoreView {
     /*显示加载错误*/
     public void showLoadMoreError(String erroeMsg);
     /* 添加数据*/
-    public void addMoreData(List<String> datas);
+    public void addMoreData(List<Repo> datas);
 }

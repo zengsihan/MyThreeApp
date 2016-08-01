@@ -77,7 +77,6 @@ public class LoginActivity extends AppCompatActivity implements LoginView {
         public void onProgressChanged(WebView view, int newProgress) {
             if (newProgress >= 100) {//进度完成
                 gifImageView.setVisibility(View.GONE);
-//                webView.setVisibility(View.VISIBLE);
             }
         }
     };

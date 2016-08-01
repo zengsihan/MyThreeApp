@@ -1,6 +1,7 @@
 package com.zsh.xuexi.mythreeapp.http;
 
 import com.zsh.xuexi.mythreeapp.entity.AccessTokenResult;
+import com.zsh.xuexi.mythreeapp.entity.RepoResult;
 import com.zsh.xuexi.mythreeapp.entity.User;
 
 import okhttp3.ResponseBody;
@@ -11,6 +12,7 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 /**
  * Created by zsh on 2016/7/28.
@@ -20,18 +22,14 @@ import retrofit2.http.POST;
  * 通过Retrofit的create方法，去创建Call模
  */
 public interface GitHubApi {
-    // 请求方式:Get
-    // 请求路径:https://api.github.com/user
-    // 请求参数：无
-    // 请求头：无(其实OKHTTP内部会帮我们做一些基本数据补全)
-    // 最终首次构建完成了一个Call模型
-//    @GET("repos/square/retrofit/contributors")
-//    Call<ResponseBody> gitHub();
-
+    // GitHub开发者，申请时填写的(重定向返回时的一个标记)
     String CALL_BACK ="zsh";
+
+    // GitHub开发者，申请就行
     String CLIENT_ID ="fcd4c34664424bd2c0eb";
     String CLIENT_SECRET = "6cd41e6964afe3845e8a21941ff8b8ad5137928c";
 
+    // 授权时申请的可访问域
     String AUTH_SCOPE="user,public_repo,repo";
 
     //授权登录页面（用webview加载）
@@ -46,6 +44,15 @@ public interface GitHubApi {
             @Field("client_secret")String clientSecret,
             @Field("code")String code);
 
+//    获取用户信息
     @GET("user")
     Call<User> getUserInfo();
+
+    /**
+     * 获取仓库
+     * @Param query 查询参数(language:java)
+     * @Param pageId 查询页数据(从1开始)
+     */
+    @GET("search/repositories")
+    Call<RepoResult> searchRepos(@Query("q")String query, @Query("page")int pageId);
 }
