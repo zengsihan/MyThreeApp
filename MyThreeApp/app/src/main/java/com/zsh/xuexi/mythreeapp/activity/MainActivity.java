@@ -5,6 +5,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,9 +15,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.zsh.xuexi.mythreeapp.R;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
+import com.zsh.xuexi.mythreeapp.entity.UserRepo;
 import com.zsh.xuexi.mythreeapp.fragment.HotRepoFragment;
+import com.zsh.xuexi.mythreeapp.fragment.HotUserFragment;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Bind(R.id.drawerLayout) DrawerLayout drawerLayout;// 抽屉(包含内容+侧滑菜单)
 
     private HotRepoFragment hotRepoFragment;//热门仓库fragment
+    private HotUserFragment hotUserFragment;
 
     private Button btnLogin;
     private ImageView ivIcon;
@@ -73,6 +78,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         hotRepoFragment=new HotRepoFragment();
         replaceFragment(hotRepoFragment);
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //没有授权的话
+        if(UserRepo.isEmpty()){
+            btnLogin.setText("登陆GitHub");
+            return;
+        }
+        btnLogin.setText("切换账号");
+        //设置title
+        getSupportActionBar().setTitle(UserRepo.getUser().getName());
+        //设置用户头像
+        String photoUrl=UserRepo.getUser().getAvatar();
+        ImageLoader.getInstance().displayImage(photoUrl,ivIcon);
+    }
+
     //替换fragment的方法
     private void replaceFragment(Fragment fragment){
         FragmentManager fragmentManager=getSupportFragmentManager();
@@ -84,10 +106,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //侧滑菜单监听器
     @Override
     public boolean onNavigationItemSelected(MenuItem menuItem) {
+        // 将默认选中项“手动”设置为false
+        if (menuItem.isChecked()) {
+            menuItem.setChecked(false);
+        }
+        // 根据选择做切换
         switch (menuItem.getItemId()){
             case R.id.github_hot_repo:// 热门仓库
+                if(!hotRepoFragment.isAdded()){
+                    replaceFragment(hotRepoFragment);
+                }
+                break;
+            case R.id.github_hot_coder:
+                if(hotUserFragment==null){
+                    hotUserFragment=new HotUserFragment();
+                }
+                if(!hotUserFragment.isAdded()){
+                    replaceFragment(hotUserFragment);
+                }
                 break;
         }
+        // 关闭drawerLayout
+        drawerLayout.post(new Runnable() {
+            @Override public void run() {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }
+        });
         // 返回true，代表将该菜单项变为checked状态
         return true;
     }

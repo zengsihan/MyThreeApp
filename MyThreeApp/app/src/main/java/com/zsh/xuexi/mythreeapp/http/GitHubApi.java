@@ -1,6 +1,7 @@
 package com.zsh.xuexi.mythreeapp.http;
 
 import com.zsh.xuexi.mythreeapp.entity.AccessTokenResult;
+import com.zsh.xuexi.mythreeapp.entity.UsersResult;
 import com.zsh.xuexi.mythreeapp.entity.RepoContentResult;
 import com.zsh.xuexi.mythreeapp.entity.RepoResult;
 import com.zsh.xuexi.mythreeapp.entity.User;
@@ -12,7 +13,6 @@ import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -72,4 +72,19 @@ public interface GitHubApi {
     @Headers({"Content-Type:text/plain"})
     @POST("/markdown/raw")
     Call<ResponseBody> markDown(@Body RequestBody body);
+
+    /**
+     * 获取用户列表
+     * @Param query 查询参数(followers:>1000)
+     * @Param pageId 查询页数据(从1开始)
+     */
+    @GET("/search/users")
+    Call<UsersResult> searchUsers(@Query("q") String query, @Query("page")int pageId);
+
+    /**
+     * 获取用户
+     * @Param login 请求路径,用户名
+     */
+    @GET("/users/{login}")
+    Call<User> getUser(@Path("login")String login);
 }

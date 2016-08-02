@@ -38,7 +38,7 @@ public class RepoInfoPresenter {
         if(repoContentCall!=null){
             repoContentCall.cancel();
         }
-        repoContentCall= GitHubClient.getInstancec().getReadme(login,name);
+        repoContentCall= GitHubClient.getInstance().getReadme(login,name);
         repoContentCall.enqueue(repoContentCallback);
     }
     private Callback<RepoContentResult> repoContentCallback=new Callback<RepoContentResult>() {
@@ -55,7 +55,7 @@ public class RepoInfoPresenter {
             if(mdhtmlCall!=null){
                 mdhtmlCall.cancel();
             }
-            mdhtmlCall=GitHubClient.getInstancec().markDown(body);
+            mdhtmlCall=GitHubClient.getInstance().markDown(body);
             mdhtmlCall.enqueue(mdhtmlCallback);
         }
 

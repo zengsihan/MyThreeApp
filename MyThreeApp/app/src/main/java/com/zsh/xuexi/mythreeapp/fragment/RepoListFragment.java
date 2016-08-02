@@ -87,6 +87,8 @@ public class RepoListFragment extends Fragment implements RepoListView {
             }
         });
 
+        presenter.refresh();//调用刷新方法，异步处理。
+
         initPullToRefresh();//调用下拉刷新的初始方法
 
         initLoadMoreScroll();//初始化上拉加载更多
@@ -142,8 +144,7 @@ public class RepoListFragment extends Fragment implements RepoListView {
         });
         // 以下代码（只是修改了header样式）
         StoreHouseHeader header = new StoreHouseHeader(getContext());
-//        getActivity().
-        header.initWithString("I LIKE " + " JAVA");
+        header.initWithString("I LIKE " + getLanguage().getName() );
         header.setPadding(0, 60, 0, 60);
         // 修改Ptr的HeaderView效果
         ptrFrameLayout.setHeaderView(header);
@@ -181,7 +182,9 @@ public class RepoListFragment extends Fragment implements RepoListView {
     //停止刷新，
     @Override
     public void stopRefresh() {
-        ptrFrameLayout.refreshComplete();//隐藏刷新的动画
+        if(ptrFrameLayout.isRefreshing()){//判断是否在刷新
+            ptrFrameLayout.refreshComplete();//隐藏刷新的动画
+        }
     }
 
     // 刷新数据

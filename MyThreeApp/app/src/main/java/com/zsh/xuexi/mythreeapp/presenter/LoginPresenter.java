@@ -32,7 +32,7 @@ public class LoginPresenter {
             tokenCall.cancel();
         }
         //获取token
-        tokenCall= GitHubClient.getInstancec().getOAuthToken(GitHubApi.CLIENT_ID,GitHubApi.CLIENT_SECRET,code);
+        tokenCall= GitHubClient.getInstance().getOAuthToken(GitHubApi.CLIENT_ID,GitHubApi.CLIENT_SECRET,code);
         tokenCall.enqueue(tokenCallback);
     }
     private Callback<AccessTokenResult> tokenCallback=new Callback<AccessTokenResult>() {
@@ -49,7 +49,7 @@ public class LoginPresenter {
             if(userCall!=null){
                 userCall.cancel();
             }
-            userCall=GitHubClient.getInstancec().getUserInfo();
+            userCall=GitHubClient.getInstance().getUserInfo();
             userCall.enqueue(userCallback);
         }
 

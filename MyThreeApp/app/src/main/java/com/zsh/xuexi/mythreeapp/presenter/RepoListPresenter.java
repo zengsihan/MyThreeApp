@@ -36,13 +36,14 @@ public class RepoListPresenter {
         repoListView.hideLoadMore();
         repoListView.showContentView();
         nextPage=1;//刷新只刷第一页，最新的数据
-        repoCall= GitHubClient.getInstancec().searchRepos(
+        repoCall= GitHubClient.getInstance().searchRepos(
                 "language:"+language.getPath(), nextPage);
         repoCall.enqueue(repoCallback);
     }
     private final Callback<RepoResult> repoCallback=new Callback<RepoResult>() {
         @Override
         public void onResponse(Call<RepoResult> call, Response<RepoResult> response) {
+            //判断一下
             //视图停止刷新
             repoListView.stopRefresh();
             //得到响应结果
@@ -75,7 +76,7 @@ public class RepoListPresenter {
     /*加载更多处理*/
     public void loadMore(){
         repoListView.showLoadMoreLoading();
-        repoCall=GitHubClient.getInstancec().searchRepos("language:"+language.getPath(),nextPage);
+        repoCall=GitHubClient.getInstance().searchRepos("language:"+language.getPath(),nextPage);
         repoCall.enqueue(loadMoreCallback);
     }
     private final Callback<RepoResult> loadMoreCallback =new Callback<RepoResult>() {

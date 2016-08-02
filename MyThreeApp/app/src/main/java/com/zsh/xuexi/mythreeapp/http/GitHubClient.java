@@ -1,6 +1,7 @@
 package com.zsh.xuexi.mythreeapp.http;
 
 import com.zsh.xuexi.mythreeapp.entity.AccessTokenResult;
+import com.zsh.xuexi.mythreeapp.entity.UsersResult;
 import com.zsh.xuexi.mythreeapp.entity.RepoContentResult;
 import com.zsh.xuexi.mythreeapp.entity.RepoResult;
 import com.zsh.xuexi.mythreeapp.entity.User;
@@ -25,7 +26,7 @@ public class GitHubClient implements GitHubApi {
     private GitHubApi gitHubApi;
     private static GitHubClient gitHubClient;
 
-    public static GitHubClient getInstancec(){
+    public static GitHubClient getInstance(){
         if(gitHubClient==null){
             gitHubClient=new GitHubClient();
         }
@@ -71,5 +72,15 @@ public class GitHubClient implements GitHubApi {
     @Override
     public Call<ResponseBody> markDown(@Body RequestBody body) {
         return gitHubApi.markDown(body);
+    }
+
+    @Override
+    public Call<UsersResult> searchUsers(@Query("q") String query, @Query("page") int pageId) {
+        return gitHubApi.searchUsers(query,pageId);
+    }
+
+    @Override
+    public Call<User> getUser(@Path("login") String login) {
+        return gitHubApi.getUser(login);
     }
 }
