@@ -1,17 +1,21 @@
 package com.zsh.xuexi.mythreeapp.http;
 
 import com.zsh.xuexi.mythreeapp.entity.AccessTokenResult;
+import com.zsh.xuexi.mythreeapp.entity.RepoContentResult;
 import com.zsh.xuexi.mythreeapp.entity.RepoResult;
 import com.zsh.xuexi.mythreeapp.entity.User;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -55,4 +59,17 @@ public interface GitHubApi {
      */
     @GET("search/repositories")
     Call<RepoResult> searchRepos(@Query("q")String query, @Query("page")int pageId);
+
+    /***
+     * 获取readme
+     * @param owner 仓库拥有者
+     * @param repo 仓库名称
+     * @return 仓库的readme页面内容,将是markdown格式且做了base64处理
+     */
+    @GET("/repos/{owner}/{repo}/readme")
+    Call<RepoContentResult> getReadme(@Path("owner") String owner,@Path("repo") String repo);
+
+    @Headers({"Content-Type:text/plain"})
+    @POST("/markdown/raw")
+    Call<ResponseBody> markDown(@Body RequestBody body);
 }

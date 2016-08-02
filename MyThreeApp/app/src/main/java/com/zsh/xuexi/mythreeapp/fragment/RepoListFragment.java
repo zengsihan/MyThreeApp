@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.mugen.Mugen;
 import com.mugen.MugenCallbacks;
 import com.zsh.xuexi.mythreeapp.R;
+import com.zsh.xuexi.mythreeapp.activity.RepoInfoActivity;
 import com.zsh.xuexi.mythreeapp.adapter.RepoListAdapter;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.commons.RepoListLoadMoreView;
@@ -77,6 +79,13 @@ public class RepoListFragment extends Fragment implements RepoListView {
         presenter=new RepoListPresenter(this,getLanguage());
         adapter = new RepoListAdapter();
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Repo repo=adapter.getItem(position);
+                RepoInfoActivity.open(getContext(),repo);
+            }
+        });
 
         initPullToRefresh();//调用下拉刷新的初始方法
 

@@ -2,11 +2,13 @@ package com.zsh.xuexi.mythreeapp.entity;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by zsh on 2016/7/29.
  *  个人用户信息响应结果
  */
-public class User {
+public class User implements Serializable {
     private String login;//登陆所用的账号
     private String name;//用户名
     private int id;
