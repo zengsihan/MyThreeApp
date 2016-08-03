@@ -12,7 +12,7 @@ public interface RepoListLoadMoreView {
     /**显示加载更多的进度条 */
     public void showLoadMoreLoading();
     /* 隐藏foot*/
-    public void hideLoadMore();
+    public void hideLoadMoreLoading();
     /*显示加载错误*/
     public void showLoadMoreError(String erroeMsg);
     /* 添加数据*/

@@ -7,7 +7,7 @@
 
     <!--Pull-To-Refresh-->
     <in.srain.cube.views.ptr.PtrClassicFrameLayout
-        android:id="@+id/ptrClassicFrameLayout"
+        android:id="@+id/user_ptrClassicFrameLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <ListView

@@ -33,7 +33,7 @@ public class RepoListPresenter {
     //下拉刷新处理
     public void refresh(){
         //隐藏loadmore
-        repoListView.hideLoadMore();
+        repoListView.hideLoadMoreLoading();
         repoListView.showContentView();
         nextPage=1;//刷新只刷第一页，最新的数据
         repoCall= GitHubClient.getInstance().searchRepos(
@@ -82,7 +82,7 @@ public class RepoListPresenter {
     private final Callback<RepoResult> loadMoreCallback =new Callback<RepoResult>() {
         @Override
         public void onResponse(Call<RepoResult> call, Response<RepoResult> response) {
-            repoListView.hideLoadMore();
+            repoListView.hideLoadMoreLoading();
             //得到响应的结果
             RepoResult repoResult=response.body();
             if(repoResult==null){
@@ -98,7 +98,7 @@ public class RepoListPresenter {
         @Override
         public void onFailure(Call<RepoResult> call, Throwable t) {
             //视图停止刷新
-            repoListView.hideLoadMore();
+            repoListView.hideLoadMoreLoading();
             repoListView.showMessage("repoCallback onFailure"+t.getMessage());
         }
     };

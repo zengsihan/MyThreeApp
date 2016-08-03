@@ -34,7 +34,7 @@ import in.srain.cube.views.ptr.header.StoreHouseHeader;
 public class HotUserFragment extends Fragment implements UserListView {
 
     @Bind(R.id.lvRepos) ListView listView;// 用来展示数据的列表视图
-    @Bind(R.id.ptrClassicFrameLayout) PtrClassicFrameLayout ptrFrameLayout;
+    @Bind(R.id.user_ptrClassicFrameLayout) PtrClassicFrameLayout ptrFrameLayout;
     @Bind(R.id.emptyView) TextView emptyView;// 没有更多数据时的空视图
     @Bind(R.id.errorView) TextView errorView;// 数据获取时的错误视图
 

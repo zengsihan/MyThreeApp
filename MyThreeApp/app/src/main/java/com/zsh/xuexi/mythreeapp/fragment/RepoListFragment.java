@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -18,8 +17,6 @@ import com.zsh.xuexi.mythreeapp.R;
 import com.zsh.xuexi.mythreeapp.activity.RepoInfoActivity;
 import com.zsh.xuexi.mythreeapp.adapter.RepoListAdapter;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
-import com.zsh.xuexi.mythreeapp.commons.RepoListLoadMoreView;
-import com.zsh.xuexi.mythreeapp.commons.RepoListPtrView;
 import com.zsh.xuexi.mythreeapp.commons.RepoListView;
 import com.zsh.xuexi.mythreeapp.entity.Repo;
 import com.zsh.xuexi.mythreeapp.http.Language;
@@ -42,6 +39,19 @@ import in.srain.cube.views.ptr.header.StoreHouseHeader;
  * 将显示当前语言的所有仓库，有下拉刷新，上拉加载更多的效果
  */
 public class RepoListFragment extends Fragment implements RepoListView {
+    private static final String KEY_LANGUAGE="key_language";
+
+    public static RepoListFragment getInstance(Language language){
+        RepoListFragment fragment=new RepoListFragment();
+        Bundle args=new Bundle();
+        args.putSerializable(KEY_LANGUAGE,language);
+        fragment.setArguments(args);
+        return fragment;
+    }
+    private Language getLanguage(){
+        return (Language) getArguments().getSerializable(KEY_LANGUAGE);
+    }
+
     @Bind(R.id.lvRepos) ListView listView;
     @Bind(R.id.ptrClassicFrameLayout) PtrClassicFrameLayout ptrFrameLayout;//下拉刷新的第三方控件
     @Bind(R.id.emptyView) TextView emptyView;
@@ -51,19 +61,6 @@ public class RepoListFragment extends Fragment implements RepoListView {
     private RepoListPresenter presenter;//用来做当前页面业务逻辑及视图更新
     private FooterView footerView;//上拉加载更多的视图
     private ActivityUtils activityUtils;//工具类
-
-    private static final String KEY_LANGUAGE="key_language";
-    public static RepoListFragment getInstance(Language language){
-        RepoListFragment fragment=new RepoListFragment();
-        Bundle args=new Bundle();
-        args.putSerializable(KEY_LANGUAGE,language);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    private Language getLanguage(){
-        return (Language) getArguments().getSerializable(KEY_LANGUAGE);
-    }
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -87,11 +84,19 @@ public class RepoListFragment extends Fragment implements RepoListView {
             }
         });
 
-        presenter.refresh();//调用刷新方法，异步处理。
-
         initPullToRefresh();//调用下拉刷新的初始方法
 
         initLoadMoreScroll();//初始化上拉加载更多
+
+        //如果当前页面没有数据，开始自动刷新
+        if(adapter.getCount()==0){
+            ptrFrameLayout.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                   ptrFrameLayout.autoRefresh();//自动刷新
+                }
+            },200);
+        }
     }
 
     private void initLoadMoreScroll() {
@@ -182,9 +187,8 @@ public class RepoListFragment extends Fragment implements RepoListView {
     //停止刷新，
     @Override
     public void stopRefresh() {
-        if(ptrFrameLayout.isRefreshing()){//判断是否在刷新
-            ptrFrameLayout.refreshComplete();//隐藏刷新的动画
-        }
+        if(ptrFrameLayout!=null)
+        ptrFrameLayout.refreshComplete();//隐藏刷新的动画
     }
 
     // 刷新数据
@@ -204,8 +208,8 @@ public class RepoListFragment extends Fragment implements RepoListView {
         footerView.showLoading();//显示进度条
     }
 
-    @Override//隐藏
-    public void hideLoadMore() {
+    @Override
+    public void hideLoadMoreLoading() {
         listView.removeFooterView(footerView);//移除listview的foot
     }
 

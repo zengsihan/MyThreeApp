@@ -19,6 +19,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.zsh.xuexi.mythreeapp.R;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.entity.UserRepo;
+import com.zsh.xuexi.mythreeapp.fragment.FavoriteFragment;
 import com.zsh.xuexi.mythreeapp.fragment.HotRepoFragment;
 import com.zsh.xuexi.mythreeapp.fragment.HotUserFragment;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private HotRepoFragment hotRepoFragment;//热门仓库fragment
     private HotUserFragment hotUserFragment;
+    private FavoriteFragment favoriteFragment;
 
     private Button btnLogin;
     private ImageView ivIcon;
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     replaceFragment(hotRepoFragment);
                 }
                 break;
-            case R.id.github_hot_coder:
+            case R.id.github_hot_coder:// 热门开发者
                 if(hotUserFragment==null){
                     hotUserFragment=new HotUserFragment();
                 }
@@ -125,6 +127,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     replaceFragment(hotUserFragment);
                 }
                 break;
+            case R.id.arsenal_my_repo:// 我的收藏
+                if(favoriteFragment==null){
+                    favoriteFragment=new FavoriteFragment();
+                }
+                if(!favoriteFragment.isAdded()){
+                    replaceFragment(favoriteFragment);
+                }
         }
         // 关闭drawerLayout
         drawerLayout.post(new Runnable() {
