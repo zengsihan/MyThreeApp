@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -15,6 +18,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.zsh.xuexi.mythreeapp.R;
+import com.zsh.xuexi.mythreeapp.adapter.FavoriteAdapter;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.db.DbHelper;
 import com.zsh.xuexi.mythreeapp.db.LocalRepoDao;
@@ -42,6 +46,7 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
     private ActivityUtils activityUtils;
     private RepoGroupDao repoGroupDao;//仓库类别dao（数据的增删改查）
     private LocalRepoDao localRepoDao;//本地仓库
+    private FavoriteAdapter adapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,8 +67,12 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        activityUtils.showToast("size = " + localRepoDao.queryForAll().size());
-
+        adapter=new FavoriteAdapter();
+        listView.setAdapter(adapter);
+        //默认显示全部仓库
+        setData(R.id.repo_group_all);
+        //注册上下文菜单
+        registerForContextMenu(listView);
     }
 
     //按下按钮弹出类别菜单
@@ -94,10 +103,13 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
     private void setData(int groupId){
         switch (groupId){
             case R.id.repo_group_all:
+                adapter.setData(localRepoDao.queryForAll());
                 break;
             case R.id.repo_group_no:
+                adapter.setData(localRepoDao.queryForNoGroup());
                 break;
             default:
+                adapter.setData(localRepoDao.queryForGroupId(groupId));
                 break;
         }
 
@@ -107,5 +119,36 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if(v.getId()==R.id.listView){
+            MenuInflater menuInflater=getActivity().getMenuInflater();
+            menuInflater.inflate(R.menu.menu_context_favorite,menu);
+            //拿到子菜单，添加内容
+            SubMenu subMenu=menu.findItem(R.id.sub_menu_move).getSubMenu();
+            List<RepoGroup> repoGroups=repoGroupDao.queryForAll();
+            //到添加到menu_group_move这个组上
+            for (RepoGroup repoGroup:repoGroups){
+                subMenu.add(R.id.menu_group_move,repoGroup.getId(),Menu.NONE,repoGroup.getName());
+            }
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int id=item.getItemId();
+        //删除
+        if(id==R.id.delete){
+            return true;
+        }
+        //移动至
+        int groupId=item.getGroupId();
+        if(groupId==R.id.menu_group_move){
+            return true;
+        }
+        return super.onContextItemSelected(item);
     }
 }
