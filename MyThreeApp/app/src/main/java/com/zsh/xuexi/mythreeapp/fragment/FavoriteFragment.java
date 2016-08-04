@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -47,6 +48,8 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
     private RepoGroupDao repoGroupDao;//仓库类别dao（数据的增删改查）
     private LocalRepoDao localRepoDao;//本地仓库
     private FavoriteAdapter adapter;
+    private int currentRepoGroupId;//当前仓库类别
+    private LocalRepo currentLocalRepo;//当前操作的仓库（上下文菜单）
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,9 +98,10 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        String title=item.getTitle().toString();
-        tvGroupType.setText(title);
-        setData(item.getItemId());
+        tvGroupType.setText(item.getTitle().toString());
+        //保存当前选择的类别
+        currentRepoGroupId=item.getItemId();
+        setData(currentRepoGroupId);
         return true;
     }
     private void setData(int groupId){
@@ -125,6 +129,12 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         if(v.getId()==R.id.listView){
+            // 得到当前ListView的ContextMenu，选中时选择的位置
+            AdapterView.AdapterContextMenuInfo adapterMenuInfo= (AdapterView.AdapterContextMenuInfo) menuInfo;
+            int position=adapterMenuInfo.position;
+            currentLocalRepo=adapter.getItem(position);
+
+            // 添加ContextMenu的内容
             MenuInflater menuInflater=getActivity().getMenuInflater();
             menuInflater.inflate(R.menu.menu_context_favorite,menu);
             //拿到子菜单，添加内容
@@ -142,11 +152,26 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
         int id=item.getItemId();
         //删除
         if(id==R.id.delete){
+            //删除当前选择的
+            localRepoDao.delete(currentLocalRepo);
+            //重置当前选择的分类下的本地仓库列表
+            setData(currentRepoGroupId);
             return true;
         }
         //移动至
         int groupId=item.getGroupId();
         if(groupId==R.id.menu_group_move){
+            //未分类
+            if(id==R.id.repo_group_no){
+                //将当前选择的本地仓库类别重置为null（无类别）
+                currentLocalRepo.setRepoGroup(null);
+            }else{//其他分类 id=1,2,3,4,5,6
+                // 得到“其它分类”的类别对象,将当前选择的本地仓库类别重置为当前类别
+                currentLocalRepo.setRepoGroup(repoGroupDao.queryForID(id));
+            }
+            //更新数据库数据
+            localRepoDao.createOrUpdate(currentLocalRepo);
+            setData(currentRepoGroupId);
             return true;
         }
         return super.onContextItemSelected(item);

@@ -21,7 +21,7 @@ public class Repo implements Serializable {
     private String description;
 
     //本仓库的star数量（在github上的被关注量）
-    @SerializedName("startgazers_count")
+    @SerializedName("stargazers_count")
     private int startCount;
 
     //本仓库的fork数量（在github上被拷贝的数量）

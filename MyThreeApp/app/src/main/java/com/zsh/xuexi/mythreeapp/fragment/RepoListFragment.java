@@ -18,6 +18,10 @@ import com.zsh.xuexi.mythreeapp.activity.RepoInfoActivity;
 import com.zsh.xuexi.mythreeapp.adapter.RepoListAdapter;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.commons.RepoListView;
+import com.zsh.xuexi.mythreeapp.db.DbHelper;
+import com.zsh.xuexi.mythreeapp.db.LocalRepoDao;
+import com.zsh.xuexi.mythreeapp.db.RepoConverter;
+import com.zsh.xuexi.mythreeapp.entity.LocalRepo;
 import com.zsh.xuexi.mythreeapp.entity.Repo;
 import com.zsh.xuexi.mythreeapp.http.Language;
 import com.zsh.xuexi.mythreeapp.presenter.RepoListPresenter;
@@ -76,11 +80,25 @@ public class RepoListFragment extends Fragment implements RepoListView {
         presenter=new RepoListPresenter(this,getLanguage());
         adapter = new RepoListAdapter();
         listView.setAdapter(adapter);
+        // 按下某个仓库后，进入此仓库详情
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Repo repo=adapter.getItem(position);
                 RepoInfoActivity.open(getContext(),repo);
+            }
+        });
+        // 长按某个仓库后，加入收藏
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                //热门仓库列表上的repo
+                Repo repo=adapter.getItem(position);
+                LocalRepo localRepo= RepoConverter.convert(repo);
+                //添加到本地仓库表中去（只认本地仓库实体LocalRepo)
+                new LocalRepoDao(DbHelper.getInstance(getContext())).createOrUpdate(localRepo);
+                activityUtils.showToast("收藏成功");
+                return true;
             }
         });
 
