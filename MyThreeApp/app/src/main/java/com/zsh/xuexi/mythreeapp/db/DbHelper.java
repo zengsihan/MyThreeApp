@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+import com.zsh.xuexi.mythreeapp.entity.LocalRepo;
 import com.zsh.xuexi.mythreeapp.entity.RepoGroup;
 
 import java.sql.SQLException;
@@ -36,8 +37,10 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
         try {
             //创建表
             TableUtils.createTableIfNotExists(connectionSource, RepoGroup.class);
+            TableUtils.createTableIfNotExists(connectionSource,LocalRepo.class);
             //将本地的默认数据添加到表里去
             new RepoGroupDao(this).createOrUpdata(RepoGroup.getDefaultGroups(context));
+            new LocalRepoDao(this).createOrUpdate(LocalRepo.getDefaultLocalRepos(context));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -47,6 +50,7 @@ public class DbHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
             TableUtils.dropTable(connectionSource,RepoGroup.class,true);
+            TableUtils.dropTable(connectionSource,LocalRepo.class,true);
             onCreate(database,connectionSource);
         } catch (SQLException e) {
             throw new RuntimeException(e);

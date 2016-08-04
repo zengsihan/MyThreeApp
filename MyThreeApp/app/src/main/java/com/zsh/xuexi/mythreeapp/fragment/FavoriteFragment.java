@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.zsh.xuexi.mythreeapp.R;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.db.DbHelper;
+import com.zsh.xuexi.mythreeapp.db.LocalRepoDao;
+import com.zsh.xuexi.mythreeapp.entity.LocalRepo;
 import com.zsh.xuexi.mythreeapp.entity.RepoGroup;
 import com.zsh.xuexi.mythreeapp.db.RepoGroupDao;
 
@@ -39,12 +41,14 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
 
     private ActivityUtils activityUtils;
     private RepoGroupDao repoGroupDao;//仓库类别dao（数据的增删改查）
+    private LocalRepoDao localRepoDao;//本地仓库
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         activityUtils=new ActivityUtils(this);
         repoGroupDao=new RepoGroupDao(DbHelper.getInstance(getContext()));
+        localRepoDao=new LocalRepoDao(DbHelper.getInstance(getContext()));
     }
 
     @Nullable
@@ -58,6 +62,8 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        activityUtils.showToast("size = " + localRepoDao.queryForAll().size());
+
     }
 
     //按下按钮弹出类别菜单
@@ -82,10 +88,18 @@ public class FavoriteFragment extends Fragment implements PopupMenu.OnMenuItemCl
     public boolean onMenuItemClick(MenuItem item) {
         String title=item.getTitle().toString();
         tvGroupType.setText(title);
-        setData();
+        setData(item.getItemId());
         return true;
     }
-    private void setData(){
+    private void setData(int groupId){
+        switch (groupId){
+            case R.id.repo_group_all:
+                break;
+            case R.id.repo_group_no:
+                break;
+            default:
+                break;
+        }
 
     }
 
