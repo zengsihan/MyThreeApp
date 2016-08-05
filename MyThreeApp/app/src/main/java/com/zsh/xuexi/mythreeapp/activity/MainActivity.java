@@ -20,6 +20,7 @@ import com.zsh.xuexi.mythreeapp.R;
 import com.zsh.xuexi.mythreeapp.commons.ActivityUtils;
 import com.zsh.xuexi.mythreeapp.entity.UserRepo;
 import com.zsh.xuexi.mythreeapp.fragment.FavoriteFragment;
+import com.zsh.xuexi.mythreeapp.fragment.GankFragment;
 import com.zsh.xuexi.mythreeapp.fragment.HotRepoFragment;
 import com.zsh.xuexi.mythreeapp.fragment.HotUserFragment;
 
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private HotRepoFragment hotRepoFragment;//热门仓库fragment
     private HotUserFragment hotUserFragment;
     private FavoriteFragment favoriteFragment;
+    private GankFragment gankFragment;
 
     private Button btnLogin;
     private ImageView ivIcon;
@@ -134,6 +136,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if(!favoriteFragment.isAdded()){
                     replaceFragment(favoriteFragment);
                 }
+                break;
+            case R.id.tips_daily:
+                if(gankFragment==null){
+                    gankFragment=new GankFragment();
+                }
+                if(!gankFragment.isAdded()){
+                    replaceFragment(gankFragment);
+                }
+                break;
         }
         // 关闭drawerLayout
         drawerLayout.post(new Runnable() {
